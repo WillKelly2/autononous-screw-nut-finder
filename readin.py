@@ -5,7 +5,7 @@ start_time = time.time()
 
 
 
-f = open('embedded hexagon_0.2mm_PLA_MK3S_7m.gcode','r') #reads in with type _io.TextIOWrapper which is a not super usable object
+f = open('./gcode/embedded hexagon_0.2mm_PLA_MK3S_7m.gcode','r') #reads in with type _io.TextIOWrapper which is a not super usable object
 
 f = f.read() #The read function returns f as a str which has much more usability
 
