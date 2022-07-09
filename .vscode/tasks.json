@@ -1,0 +1,23 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "python Run Active File",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "${fileDirname}\\${fileBasenameNoExtension}.py"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "new",
+                "focus": true
+            }
+        }
+    ]
+}
