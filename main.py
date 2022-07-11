@@ -5,7 +5,7 @@ start_time = time.time()
 
 
 
-f = open('./gcode/embedded hexagon_0.2mm_PLA_MK3S_7m.gcode','r') #reads in with type _io.TextIOWrapper which is a not super usable object
+f = open('./gcode/embedded hexagon_0.2mm_PLA_MK3S_6m.gcode','r') #reads in with type _io.TextIOWrapper which is a not super usable object
 
 f = f.read() #The read function returns f as a str which has much more usability
 
@@ -206,11 +206,11 @@ for hexagonfrag in HexagonFull:
                 hexagonfragNoZ = np.append(hexagonfrag[:2],hexagonfrag[3:])
                 CurrentEntry = fullNuts[i,:] 
                 CurrentEntryNoZ = np.append(CurrentEntry[:2],CurrentEntry[3:])
-                print(hexagonfragNoZ)
+                #print(hexagonfragNoZ)
                 #print(np.shape([hexagonfrag]))
                 #print(np.linalg.norm(hexagonfragNoZ-lastFragNoZ))
                 #print(np.linalg.norm(fullNuts[i,:]-hexagonfrag))
-                if np.linalg.norm(hexagonfragNoZ-CurrentEntryNoZ) !=0:
+                if np.linalg.norm(hexagonfragNoZ-CurrentEntryNoZ) <.1:
                     noMatch = True
                     index = i
                     #print(np.shape(fullNuts[i,:]))
@@ -225,6 +225,8 @@ for hexagonfrag in HexagonFull:
 
         #print(np.shape(fullNuts))
              
-
+fullNuts = fullNuts[2:,:]
+np.round(fullNuts,4)
+print(fullNuts)
 print(np.shape(fullNuts))
         
