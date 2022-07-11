@@ -199,24 +199,26 @@ HexagonFull = HexagonFull[1:,:].copy()
 fullNuts = np.empty((2,5),dtype='float32')
 
 for hexagonfrag in HexagonFull:
-    
+    noMatch = False
+    index =0
     if np.linalg.norm(fullNuts) !=0:
         for i in range(len(fullNuts[:,0])):
-            hexagonfragNoZ = np.append(hexagonfrag[:1],hexagonfrag[3:])
-            print(hexagonfragNoZ)
-            print(np.shape([hexagonfrag]))
-            
-            #print(np.linalg.norm(fullNuts[i,:]-hexagonfrag))
-            if np.linalg.norm(fullNuts[i,:])-np.linalg.norm(hexagonfrag)<.001:
-                fullNuts[i,:] = hexagonfrag
-                #print(np.shape(fullNuts[i,:]))
-            else:
-                hexagonfrag = np.transpose(hexagonfrag)
-                #print(np.shape(fullNuts))print(fullNuts)
-                fullNuts = np.append(fullNuts, [hexagonfrag],axis=0)
-                #print(np.shape(fullNuts))
-
-
+                hexagonfragNoZ = np.append(hexagonfrag[:2],hexagonfrag[3:])
+                CurrentEntry = fullNuts[i,:] 
+                CurrentEntryNoZ = np.append(CurrentEntry[:2],CurrentEntry[3:])
+                print(hexagonfragNoZ)
+                #print(np.shape([hexagonfrag]))
+                #print(np.linalg.norm(hexagonfragNoZ-lastFragNoZ))
+                #print(np.linalg.norm(fullNuts[i,:]-hexagonfrag))
+                if np.linalg.norm(hexagonfragNoZ-CurrentEntryNoZ) !=0:
+                    noMatch = True
+                    index = i
+                    #print(np.shape(fullNuts[i,:]))
+        if noMatch: 
+            fullNuts[index,:] = hexagonfrag
+        else:
+            fullNuts = np.vstack((fullNuts,hexagonfrag))
+        noMatch = False
     else:
         fullNuts = hexagonfrag
         fullNuts = fullNuts[0,:]
