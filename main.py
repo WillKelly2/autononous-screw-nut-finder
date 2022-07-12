@@ -11,7 +11,7 @@ f = f.read() #The read function returns f as a str which has much more usability
 
 #print(type(f)) #debug
 
-#print(f) #debug
+#print(f) #debug 
 li = list(f.split("\n")) #\n is the carriage return of each line
 #print(type(li))
 
@@ -34,38 +34,38 @@ print(len(perimeters))
 #
 
 z = 0.0 #initializes z = 0 
-ztest = []
+
 xyz = [] #initializes the xyz 2D array 
 new = [] #initializes the individual line
 
-for string in perimeters:
-    intermed1 = list(string.split(" "))
+for string in perimeters: #iterates through the perimeter points with string containing each point
+    intermed1 = list(string.split(" ")) #string.split breaks a string into a list of substrings
     #print(intermed1)
-    for string2 in intermed1:
+    for string2 in intermed1:   #iterates through all substrings and reads each string looking for x,y, or z 
         #print(string2)
-        if string2.find("Z") !=-1 and len(string2) != 1:
+        if string2.find("Z") !=-1 and len(string2) != 1: #checks if the substring is like Z0.6 compared to Z
             #print(string2)
             
-            z = float(string2.replace("Z",""))
-            ztest.append(z)
-        elif string2.find("X") !=-1:
-            string3 = string2.replace("X","")
+            z = float(string2.replace("Z","")) #removes Z from Z.6 to make .6
+            
+        elif string2.find("X") !=-1:    #checks for X 
+            string3 = string2.replace("X","") #removes X to go from X254 to 254
             #print(string3)
-            new.append(float(string3))
+            new.append(float(string3))  #adds the x value 
             #print(new)
-        elif string2.find("Y") !=-1:
-            string3 = string2.replace("Y","")
+        elif string2.find("Y") !=-1:    #checks for Y
+            string3 = string2.replace("Y","") #removes Y to go from Y254 to 254
             #print(string3)
-            new.append(float(string3))
-            new.append(z)
+            new.append(float(string3)) #adds y to the new array
+            new.append(z)               #adds z to create an array of x,y,z
             #print(new)
-            xyz.append(new)    
+            xyz.append(new)     #adds x,y,z point to the xyz array
 
                 
-    new = []
+    new = [] #emptys new array
 #print(ztest)
 
-xyz = np.array(xyz, dtype = 'float32')
+xyz = np.array(xyz, dtype = 'float32') #converts xyz into a numpy array
 #print(xyz[:,2])
 
 
@@ -89,90 +89,88 @@ HexagonAngle = np.array([0],dtype = 'float32')
 ctrfindingMatrix = np.empty((3,3),dtype = 'float32')
 hexagonPoints = np.empty((3,5),dtype = 'float32')
 
-def mag(delta):
-    return np.sqrt(delta[0]**2+delta[1]**2+delta[2]**2)
+def mag(delta): #mag function call to evaluate the magnitude 
+    return np.sqrt(delta[0]**2+delta[1]**2+delta[2]**2) #basic magnitude function
 
-def minor(Marray,column):
-    front = Marray[:,:column-1]
+def minor(Marray,column): #minor function. Required for evaluating a circle center. Technically this is an incomplete minor function bc a 
+                            #minor function is the determinant of an array with one row and one collumn removed
+                            #in this case, the first row is always removed and the column arg is the collumn that is removed
+    front = Marray[:,:column-1] #pulls front half of array
     #print(front)
-    back = Marray[:,column:]
+    back = Marray[:,column:] #pulls back half of array
     #print(back)
-    det = np.append(front,back,axis=1)
+    det = np.append(front,back,axis=1) #combines both vectors. could have used np.hstack instead of np.append
     #print(det)
-    return np.linalg.det(det)
+    return np.linalg.det(det) #returns the determinant of the minored array. single value with type float
 
 
-def centerFind(hexagon):
+def centerFind(hexagon): #center finding function which calls minor function. Algorithm is outlined in https://math.stackexchange.com/questions/213658/get-the-equation-of-a-circle-when-given-3-points
     #print(hexagon)
-    midpoints = hexagon[1:4,:]
+    midpoints = hexagon[1:4,:]  #the first and last hexagon vector are both shorter than the rest of the vectors because of slicer stuff
     #print(midpoints)
-    newline = np.empty((1,4),dtype='float32')
-    centerMatrix = np.empty((3,4),dtype='float32')
+    centerMatrix = np.empty((3,4),dtype='float32') #creates matrix outlined in the above link. 
     for i in range(3):
         
         #print("i")
-        newline = [midpoints[i,0]**2+midpoints[i,1]**2,midpoints[i,0],midpoints[i,1],1]
-        #print(newline)
-        
-        centerMatrix[i,:] = newline
+        centerMatrix[i,:] = [midpoints[i,0]**2+midpoints[i,1]**2,midpoints[i,0],midpoints[i,1],1] # stores valuse as x^2 + y^2, x, y , 1
         #print(centerMatrix)
 
-    xc = .5 * minor(centerMatrix,2)/minor(centerMatrix,1)
-    yc =-.5 * minor(centerMatrix,3)/minor(centerMatrix,1)
-    return np.array([xc,yc,0])
+    xc = .5 * minor(centerMatrix,2)/minor(centerMatrix,1) #follows algorithm of the above link
+    yc =-.5 * minor(centerMatrix,3)/minor(centerMatrix,1) # ^
+    return np.array([xc,yc,0]) #returns a concatenated array of the x and y center points
 
-for point in xyz:
-    if lastPt.size >0:
-        delta = point-lastPt
-        curmag = mag(delta)
-        hmmNewline=np.append(hmmNewline,round(curmag,1))
-        if lastmag != 0.0:
-            angle  = 180*np.arccos(np.dot(delta[:2],lastdelta[:2])/(curmag*lastmag))/np.pi
-            hmmNewline=np.append(hmmNewline,angle)
-            angle = round(angle,1)
+for point in xyz: #iterates through xyz points and breaks it up with point
+    if lastPt.size >0: #checks that it is the second iteration
+        delta = point-lastPt #finds the delta vector between the last point and the current point
+        curmag = mag(delta) #evaluates current vector magnitude
+        hmmNewline=np.append(hmmNewline,round(curmag,1)) #adds the rounded magnitude of the current vector
+        if lastmag != 0.0: #verifies that this is the 3rd iteration
+            angle  = 180*np.arccos(np.dot(delta[:2],lastdelta[:2])/(curmag*lastmag))/np.pi #evaluates angle with SOH CAH TOA
+            hmmNewline=np.append(hmmNewline,angle) #adds angle to the hmmnewline array
+            angle = round(angle,1) #rounds off angle to check for a hexagon match
             #print(angle)
             #print(abs(curmag-lastmag))
-            if abs(angle-60) <.1:
-                hexcount +=1
-                hexagonPoints[:,hexcount-1] = point
+            if abs(angle-60) <.1: #checks if the absolute error between the angle and 60 degrees is less than .1
+                hexcount +=1 #hexcount increments
+                hexagonPoints[:,hexcount-1] = point #stores the current point into a hexagonPoints array
 
             else:
-                hexcount = 0
-                hexagonPoints = np.empty((3,5))
+                hexcount = 0 #restarts the hex count bc the error is too high
+                hexagonPoints = np.empty((3,5)) #emptys the hexagon points array
             
 
-            if hexcount == 4:
-                fullHexCount +=1
+            if hexcount == 4: #if the hexagon count is 4... it seems that there us an error with the angle on the first and the last vector so hexcount has a max val of 4 for a proper hexagon
+                fullHexCount +=1 #adds 1 to full hex cound for debug purposes
                 #print(lastdelta)
                 #print(lastmag)
                 #print([lastmag*np.cos(2*np.pi/3),lastmag*np.sin(2*np.pi/3),0])
                 #.45*np.ones(np.size(HexagonDia),dtype = 'float32').45*np.ones(np.size(HexagonDia),dtype = 'float32')print(lastmag)
-                HexagonAngle = np.vstack([HexagonAngle,np.mod(round(180/np.pi*np.arctan2(lastdelta[1],lastdelta[0]),1),60)])
+                HexagonAngle = np.vstack([HexagonAngle,np.mod(round(180/np.pi*np.arctan2(lastdelta[1],lastdelta[0]),1),60)]) #rounds angle to be less than 60 degrees to limit the max travel the robot arm has to travel
                 
-                hexagonPoints = np.transpose(hexagonPoints)
+                hexagonPoints = np.transpose(hexagonPoints) # transposes array because it has been being stored in the wrong order
                 #print(hexagonPoints)
-                hexagonCtr = centerFind(hexagonPoints)
-                hexagonCtr[2] = point[2]
+                hexagonCtr = centerFind(hexagonPoints) #calls centerFind function to evaluate the center of the hexagon
+                hexagonCtr[2] = point[2] #stores z value into the z value of the hexagon center array
                 
-                HexagonCtrs = np.vstack([HexagonCtrs,hexagonCtr])
-                hexcount = 0
-                hexagonPoints = np.empty((3,5))
-                HexagonDia = np.vstack([HexagonDia,round(lastmag*np.sqrt(3),3)])
+                HexagonCtrs = np.vstack([HexagonCtrs,hexagonCtr]) #adds the hexagon center to the hexagon centers array
+                hexcount = 0 #restarts hex count
+                hexagonPoints = np.empty((3,5)) #clears hexagon points array 
+                HexagonDia = np.vstack([HexagonDia,round(lastmag*np.sqrt(3),3)]) #evaluates heagon diameter with the length of a side
             #print(angle)
             #print(fullHexCount)
         else:
-            hmmNewline=np.append(hmmNewline,0)
+            hmmNewline=np.append(hmmNewline,0) #debug
 
         #print(hmmNewline)
-        hmmArray=np.vstack([hmmArray,hmmNewline]) 
-        hmmNewline = []
+        hmmArray=np.vstack([hmmArray,hmmNewline]) #debug
+        hmmNewline = [] #wipes debuh new line
 
         #print(delta)
-        lastdelta = delta
-        lastmag = curmag
+        lastdelta = delta#swaps delta to last delta
+        lastmag = curmag #swaps curmag to last mag
         
     
-    lastPt = point
+    lastPt = point #swaps point to last point   
 #print(hmmArray)        
 #print(np.shape(hmmArray))
 #print(fullHexCount)
